@@ -9,5 +9,5 @@
 
   ## 📊 Results  
   The probability distributions are saved as images:  
-  - **100 Rolls:** ![monopoly_100](monopoly/monopoly_100.png)  
-  - **1,000,000 Rolls:** ![monopoly_1000000](monopoly/monopoly_1000000.png)  
+  - **100 Rolls:** ![monopoly_100](monopoly_100.png)  
+  - **1,000,000 Rolls:** ![monopoly_1000000](monopoly_1000000.png)  
