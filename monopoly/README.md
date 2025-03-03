@@ -5,8 +5,6 @@
     1. **Standard movement**  
     2. **With Jail** – Landing on field **30 ("Go to Jail")** moves the player to **field 10 ("Jail")**  
 
-  📂 **[Project Files & Results](monopoly/)**  
-
   ## 📊 Results  
   The probability distributions are saved as images:  
   - **100 Rolls:** ![monopoly_100](monopoly_100.png)  
