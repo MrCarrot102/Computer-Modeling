@@ -23,11 +23,14 @@ def simulate_monopoly(rolls, jail_rule = False):
 def plot_distribution(standard, jail, rolls): 
     fig, axs = plt.subplots(2, 1, figsize=(10, 10))
 
+    y_max = max(max(standard), max(jail))  # Maksymalna wartość prawdopodobieństwa na obu wykresach
+
     # wykres 1: bez więzienia
     axs[0].plot(range(board_size), standard, marker='o', linestyle='-', color='blue')
     axs[0].set_title(f"Rozkład pól w Monopoly BEZ więzienia ({rolls} rzutów)")
     axs[0].set_xlabel("Pole planszy")
     axs[0].set_ylabel("Prawdopodobieństwo p(i)")
+    axs[0].set_ylim(0, y_max)  # Ustawienie tej samej skali osi Y
     axs[0].grid(True, linestyle="--", alpha=0.7)
 
     # wykres 2: z więzieniem
@@ -35,11 +38,13 @@ def plot_distribution(standard, jail, rolls):
     axs[1].set_title(f"Rozkład pól w Monopoly Z więzieniem ({rolls} rzutów)")
     axs[1].set_xlabel("Pole planszy")
     axs[1].set_ylabel("Prawdopodobieństwo p(i)")
+    axs[1].set_ylim(0, y_max)  # Ustawienie tej samej skali osi Y
     axs[1].grid(True, linestyle="--", alpha=0.7)
 
     plt.tight_layout()
     plt.savefig(f"monopoly_{rolls}.png")  # Zapis wykresu
     plt.show()
+
     
 for rolls in simulations: 
     standard = simulate_monopoly(rolls, jail_rule=False)
