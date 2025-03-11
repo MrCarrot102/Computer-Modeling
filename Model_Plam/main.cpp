@@ -66,7 +66,7 @@ struct Grid{
 
 
 void saveDesityToCSV(const Grid& grid, int iteration){ 
-    std::ofstream file("desity_data.csv", std::ios::app);
+    std::ofstream file("density_data.csv", std::ios::app);
     float totalDensity = 0.0f; 
 
     for(int x = 0; x < WIDTH; x++){
