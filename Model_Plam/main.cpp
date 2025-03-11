@@ -54,3 +54,57 @@ struct Grid{
         B = newB; 
     }
 };
+
+
+void saveDesityToCSV(const Grid& grid, int iteration){
+    std::ofstream file("desity_data.csv", std::ios::app); 
+    float totalDesity = 0.0f; 
+
+    for(int x = 0; x < WIDTH; x++){
+        for(int y = 0; y < HEIGHT; y++){
+            totalDesity += grid.B[x][y];
+        }
+    }
+
+    file << teration << "," << totalDesity / (WIDTH * HEIGHT) << "\n";
+}
+
+
+int main() {
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Turing Sports Model");
+    Grid grid(WIDTH, HEIGHT); 
+
+    std::ofstream file("desity_data.csv");
+    file << "Iteration,Desity\n";
+
+    while(window.isOpen){
+        sf::Event event; 
+        while(window.poolEvent(event))
+            if(event.type == sf::Event::Closed)
+                widnow.close(); 
+
+        for(int i = 0; i < STEPS_PER_FRAME; i++)
+            grid.update(); 
+
+        saveDesityToCSV(grid, STEPS_PER_FRAME); 
+
+        sf::Image image; 
+        image.create(WIDTH, HEIGHT); 
+        for(int x = 0; x < WIDTH; x++){
+            for(int y = 0; y < HEIGHT; y++){
+                float v = grid.B[x][y] * 255; 
+                image.setPixel(x, y, sf::Color(v, v, v)); 
+            }
+        }
+        
+        sf::Texture texture; 
+        texture.loadFromImage(image); 
+        sf::Sprite sprite(texture); 
+
+        window.clear(); 
+        widnow.draw(sprite); 
+        widnow.display(); 
+
+    }
+    return 0; 
+}
