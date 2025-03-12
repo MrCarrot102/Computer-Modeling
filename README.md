@@ -6,3 +6,7 @@
     2. **With Jail** – Landing on field **30 ("Go to Jail")** moves the player to **field 10 ("Jail")**  
 
   📂 **[Project Files & Results](monopoly/)**  
+
+**Task 2** 
+  # 🌊 Stain Simulation (Model_Plam)
+   📂 **[Project Files & Results](Model_plam/)**  
