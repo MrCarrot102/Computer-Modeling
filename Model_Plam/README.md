@@ -2,9 +2,9 @@
 
 This project simulates the **spreading of a stain** (or a diffusion-like process) on a surface using **SFML** for visualization and **Matplotlib** for analysis. The model demonstrates how a stain evolves over time based on defined parameters.
 
-## 🎥 Simulation Previ
+## 🎥 Simulation Preview
 
-![Simulation Preview](https://github.com/user-attachments/assets/0e8c8621-1910-45ee-9314-d39492ccc64d)
+https://github.com/user-attachments/assets/21c9d54a-51e7-4069-b142-4a06a71a7f16
 
 ## ⚙️ Dependencies
 - **SFML** – Graphics rendering  
