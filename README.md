@@ -9,4 +9,4 @@
 
 **Task 2** 
   # 🌊 Stain Simulation (Model_Plam)
-   📂 **[Project Files & Results](Model_plam/)**  
+   📂 **[Project Files & Results](Model_Plam/)**  
