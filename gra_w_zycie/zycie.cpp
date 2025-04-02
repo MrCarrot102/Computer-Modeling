@@ -16,6 +16,11 @@
 #include <SFML/Graphics.hpp>
 #include <thread> 
 #include <chrono> 
+#include <fstream> 
+#include <stdexcept>
+#include "matplotlibcpp.h"
+
+namespace plt = matplotlibcpp;
 
 class Life{
     private: 
@@ -58,6 +63,28 @@ class Life{
             return result; 
         }
         void syncBuffers(); 
+
+        void saveToFile(const std::string& filename){
+            std::ofstream file(filename);
+            for(int y = 0; y < height; y++){
+                for(int x = 0; x < width; x++){
+                    file << (board[y][x] ? "O" : ".");
+                }
+                file << "\n";
+            }
+        }
+
+        void loadFromFile(const std::string& filename){
+            std::ifstream file(filename); 
+            std::string line; 
+            int y = 0;
+            while(getline(file, line)){
+                for(int x = 0; x < width && x < line.size(); x++){
+                    setCell(x , y, line[x] == 'O');
+                }
+                y++;
+            }
+        }
 };
 
 void Life::syncBuffers(){
@@ -73,12 +100,8 @@ void Life::init(){
     board = new bool*[height];
     buffer = new bool*[height];
     for(int y = 0; y < height; y++){
-        board[y] = new bool[width];
-        buffer[y] = new bool[width];
-        for(int x = 0; x < width; x++){
-            board[y][x] = false; 
-            buffer[y][x] = false; 
-        }
+        board[y] = new bool[width]();
+        buffer[y] = new bool[width]();
     }
 }
 
@@ -106,6 +129,14 @@ Life::Life(const Life& life){
 
 
 Life& Life::operator=(const Life& life){
+    if(this == &life) return *this;
+    for(int i = 0; i < height; i++){
+        delete [] board[i]; 
+        delete [] buffer[i];
+    }
+    delete [] board;
+    delete [] buffer; 
+
     width = life.width;
     height = life.height; 
     init(); 
@@ -119,12 +150,18 @@ Life& Life::operator=(const Life& life){
 }
 
 Life::~Life(){
-    for(int i = 0; i < height; i++){
-        delete [] board[i];
-        delete [] buffer[i];
+    if(board){
+        for(int i = 0; i < height; i++){
+            delete[] board[i]; 
+        }
+        delete[] board; 
     }
-    delete [] board; 
-    delete [] buffer; 
+    if(buffer){
+        for(int i = 0; i < height; i++){
+            delete[] buffer[i];
+        }
+        delete[] buffer;
+    }
 }
 
 std::vector<std::pair<float, float>> Life::doTick(){
@@ -149,9 +186,12 @@ int Life::checkNeighbors(bool **curr, int x, int y){
     int dx[8] = {-1, 0, 1, 1, 1, -1, 0, -1};
     int dy[8] = {-1, -1, -1, 0, 1, 1, 1, 0};
     for(int i = 0; i < 8; i++){
-        int nx = ((dx[i]+x) + width) % width; 
-        int ny = ((dy[i]+y) + height) % height; 
-        lc += isAlive(curr, nx, ny);
+        int nx = x + dx[i]; 
+        int ny = y + dy[i];
+
+        if(nx >= 0 && nx < width && ny >= 0 && ny < height)
+            lc += isAlive(curr, nx, ny); 
+
     }
     return lc; 
 }
@@ -362,11 +402,161 @@ void App::saveDisplay(){
     image.saveToFile(name); 
 }
 
+
+class DataLogger{
+    private:
+        std::string base_filename; 
+        std::vector<double> time_points; 
+        std::vector<double> density_values; 
+        int current_size; 
+
+    public: 
+        DataLogger(const std::string& filename_base)
+            : base_filename(filename_base), current_size(0){}
+
+        void record(double time, double density){
+            time_points.push_back(time); 
+            density_values.push_back(density); 
+            current_size++;
+        }
+        void saveToCSV() const {
+            std::string filename = base_filename + ".csv";
+            std::ofstream file(filename); 
+
+            if(!file.is_open()){
+                throw std::runtime_error("Cannot open file: " + filename); 
+            }
+            file << "time,density\n";
+            
+            for(int i = 0; i < current_size; ++i){
+                file << time_points[i] << "," << density_values[i] << "\n";
+            }
+        }
+
+        void plotAndSave(const std::string& title = "") const {
+            plt::figure(); 
+            plt::plot(time_points, density_values);
+            plt::title(title.empty() ? base_filename : title); 
+            plt::xlabel("time (ticks)");
+            plt::ylabel("density");
+            plt::grid(true);
+            
+            std::string plot_filename = base_filename + "_plot.png";
+            plt::save(plot_filename);
+            plt::close();
+        }
+
+        void clear(){
+            time_points.clear();
+            density_values.clear();
+            current_size = 0;
+        }
+};
+
+// zadanie 2 
+class Experiment {
+    private:
+        int size = 100;
+        double p0; 
+        
+        DataLogger logger; 
+        std::vector<double> density_values;
+    public: 
+        Experiment(double probability) : p0(probability), life(size, size), logger("density_p0_"+std::to_string(probability)) {
+            for(int y = 0; y < size; y++){
+                for(int x = 0; x < size; x++){
+                    if(rand()/(double)RAND_MAX < p0){
+                        life.setCell(x,y,true);
+                    }
+                }
+            }
+        }
+        Life life;     
+        void run(int max_ticks = 1000){
+            std::ofstream data("density_p0_" + std::to_string(p0) + ".csv");
+            for(int t = 0; t < max_ticks; t++){
+                int alive = life.doTick().size();
+                double density = alive / (double)(size*size);
+
+                logger.record(t, density); 
+
+                data << t << ", "<<density<<"\n";
+                if(t&100 == 0){
+                    std::cout << "p0="<<p0<<" t=" << t 
+                                        << " density="<<density << std::endl;
+                }
+            }
+
+            logger.saveToCSV();
+            logger.plotAndSave("density evoution for p0=" + std::to_string(p0));
+        }
+
+        void analyzeResults(){
+            std::vector<double> final_densities; 
+            for(int t = 900; t < 1000; t++){
+                final_densities.push_back(density_values[t]);
+            }
+            
+            double avg = std::accumulate(final_densities.begin(),
+        final_densities.end(), 0.0) / final_densities.size();
+
+        std::cout << "srednia gestosc dla p0=" << p0 << ": " << avg << "\n";
+        }
+    };
+
+
+class ErrorAnalysis{
+    public:
+        static void run(int L, double p0, int N = 100, int Tmax = 1000){
+            std::vector<double> final_densities; 
+
+            for(int n = 0; n < N; n++){
+                Experiment exp(p0);
+                exp.life = Life(L,L); 
+
+                for(int t = 0; t < Tmax; t++){
+                    auto cells = exp.life.doTick();
+                    if(t==Tmax-1){
+                        double density = cells.size() / (double)(L*L);
+                        final_densities.push_back(density);
+                    }
+                }
+            }
+            double mean = calculateMean(final_densities); 
+            double std__err = calculateStdErr(final_densities); 
+
+            std::cout << "L=" << L << " | średnia: " << mean << " | Błąd: " << std__err << "\n";
+        }
+
+        private: 
+            static double calculateMean(const std::vector<double>& data) {
+                return std::accumulate(data.begin(), data.end(), 0.0) / data.size(); 
+            }
+
+            static double calculateStdErr(const std::vector<double>& data){
+                double mean = calculateMean(data); 
+                double sq_sum = std::inner_product(data.begin(), data.end(), data.begin(), 0.0); 
+                return std::sqrt(sq_sum / data.size() - mean * mean); 
+            }
+};
+
+
 int main(int argc, char* argv[]){
-    std::srand(time(0));
-    App app; 
-    app.start();
-    return 0;
+    std::vector<double> probabilities = {0.05, 0.1, 0.3, 0.6, 0.75, 0.8, 0.95};
+
+    for(double p0 : probabilities){
+        Experiment exp(p0);
+        exp.run(1000);
+        exp.analyzeResults(); 
+    }
+
+    std::vector<int> sizes = {10,100,200,500,1000};
+    for(int L : sizes){
+        ErrorAnalysis::run(L, 0.3); 
+    }
+
+    App app(100,100); 
+    app.start(); 
+
+    return 0; 
 }
-
-
