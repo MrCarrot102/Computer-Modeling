@@ -40,10 +40,10 @@ class Life{
         std::vector<std::pair<float, float>> doTick();
         Life& operator=(const Life& life);
         void setCell(int x, int y, bool state){
-            if(x <= 0 || x >= width || y < 0 || y >= height) return; 
-            if(pass){ buffer[y][x] = state; }
-            else { board[y][x] = state; 
-            }
+           if ( x < 0 || x >= width || y < 0 || y >= height) return;
+
+           board[y][x] = state;
+           buffer[y][x] = state; 
          }
         std::vector<std::pair<float, float>> getLiveCells(){
             std::vector<std::pair<float, float>> result; 
@@ -57,7 +57,17 @@ class Life{
             }
             return result; 
         }
+        void syncBuffers(); 
 };
+
+void Life::syncBuffers(){
+    for(int y = 0; y < height; y++){
+        for(int x = 0; x < width; x++){
+            buffer[y][x] = board[y][x];
+        }
+    }
+    pass = false; 
+}
 
 void Life::init(){
     board = new bool*[height];
@@ -194,7 +204,8 @@ class App{
         sf::RenderWindow* window; 
         sf::RenderTexture* texture; 
         bool isPaused = false; 
-        bool isDriwing = false; 
+        bool isDrawing = false; 
+        bool isErasing = false; 
 
     public: 
         App(int w = 100, int h = 100); 
@@ -237,6 +248,9 @@ void App::start(){
                 isRecording = !isRecording; 
                 break; 
             case sf::Keyboard::Space:
+                if(isPaused){
+                    life.syncBuffers();
+                }
                 isPaused = !isPaused; 
                 break; 
             case sf::Keyboard::C:
@@ -252,18 +266,40 @@ void App::start(){
     }
     if(isPaused && event.type == sf::Event::MouseButtonPressed){
         if(event.mouseButton.button == sf::Mouse::Left){
-            isDriwing = true;
+            isDrawing = true;
         }
     }
     if(event.type == sf::Event::MouseButtonReleased){
-        isDriwing = false; 
+        isDrawing = false; 
     }
-    if(isPaused && isDriwing && event.type == sf::Event::MouseMoved){
+    if(isPaused && isDrawing && event.type == sf::Event::MouseMoved){
         sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
         int cellX = mousePos.x / 10;
         int cellY = mousePos.y / 10; 
         if(cellX >= 0 && cellX < width && cellY >= 0 && cellY < height){
             life.setCell(cellX, cellY, true);
+        }
+    }
+    if (isPaused && event.type == sf::Event::MouseButtonPressed){
+        if(event.mouseButton.button == sf::Mouse::Left){
+            isDrawing = true;
+        } else if (event.mouseButton.button == sf::Mouse::Right){
+            isErasing = true; 
+        }
+    }
+    if(isPaused && isErasing && event.type == sf::Event::MouseMoved){
+        sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
+        int cellX = mousePos.x / 10; 
+        int cellY = mousePos.y / 10; 
+        if(cellX >= 0 && cellX < width && cellY >= 0 && cellY < height){
+            life.setCell(cellX, cellY, true); 
+        }
+        if(cellX >= 0 && cellX < width && cellY >= 0 && cellY < height){
+            if(isDrawing){
+                life.setCell(cellX, cellY, true);
+            } else if(isErasing){
+                life.setCell(cellX, cellY, false);
+            }
         }
     }
 }
@@ -291,13 +327,13 @@ void App::render(){
     if(!isPaused){ 
         drawLiveCells();
     } else {
-        if (isDriwing} {
-                sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
+        if (isDrawing) {
+             /*   sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
                 int cellX = mousePos.x / 10; 
                 int cellY = mousePos.y / 10; 
                 if(cellX >= 0 && cellX < width && cellY >= 0 && cellY < height){
                     life.setCell(cellX, cellY, true); 
-                }
+                }*/
             }
             texture->clear(sf::Color::Black);
             sf::RectangleShape rect(sf::Vector2f(10,10));
