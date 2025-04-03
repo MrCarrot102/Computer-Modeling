@@ -140,7 +140,7 @@ public:
 int main()
 {
     Plama plama(100, 100); // 100x100 grid
-    plama.loop(1000); // Run 1000 iterations
+    plama.loop(100000); // Run 1000 iterations
 
     return 0;
 }
