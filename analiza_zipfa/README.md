@@ -1,0 +1,19 @@
+📊 Interpretacja wykresów log-log i wykładników Zipfa:
+
+    Boska Komedia (s ≈ 0.61)
+
+        Najniższy wykładnik wśród trzech tekstów.
+
+        Wniosek: bardzo bogate słownictwo, duża różnorodność słów — charakterystyczne dla literatury o wysokim poziomie artystycznym.
+
+    Dziady III (s ≈ 0.67)
+
+        Umiarkowany wykładnik.
+
+        Wniosek: wyraźne zróżnicowanie słownictwa, ale mniej niż w "Boskiej Komedii" — styl dramatyczny, ale bardziej oszczędny językowo.
+
+    Pan Tadeusz (s ≈ 0.77)
+
+        Najwyższy wykładnik.
+
+        Wniosek: mniejsze bogactwo słów w porównaniu do pozostałych — bardziej powtarzalna struktura, rytmiczność i powtórzenia wynikające z formy poematu.
