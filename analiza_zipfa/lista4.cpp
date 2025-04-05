@@ -132,7 +132,7 @@ private:
 };
 
 int main() {
-    std::vector<std::string> texts = { "Pan_Tadeusz", "Boska_Komedia", "RomeoJulia" };
+    std::vector<std::string> texts = { "Pan_Tadeusz", "Boska_Komedia", "Dziady_III" };
 
     for (const auto& name : texts) {
         ZipfAnalyzer analyzer(name);
