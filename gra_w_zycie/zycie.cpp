@@ -105,13 +105,14 @@ void Life::init(){
     }
 }
 
-Life::Life(int w, int h, int seed){
-    width = w; 
-    height = h; 
+Life::Life(int w, int h, int seed) : width(w), height(h){
     init(); 
-    for(int i = 0; i < seed; i++){
-        board[rand() % height][rand() % width] = true; 
+    if(seed > 0){
+        for(int i = 0; i < seed; i++){
+            board[rand() % height][rand() % width] = true; 
+        }
     }
+
     pass = true; 
 }
 
@@ -253,8 +254,8 @@ class App{
 };
 
 App::App(int w, int h){
-    height = h; 
-    width = w; 
+    height = std::min(h, 300); 
+    width = std::min(w, 300);  
     life = Life(width, height); 
     isRecording = false; 
     tick = 0; 
@@ -403,160 +404,168 @@ void App::saveDisplay(){
 }
 
 
-class DataLogger{
-    private:
-        std::string base_filename; 
-        std::vector<double> time_points; 
-        std::vector<double> density_values; 
-        int current_size; 
-
-    public: 
-        DataLogger(const std::string& filename_base)
-            : base_filename(filename_base), current_size(0){}
-
-        void record(double time, double density){
-            time_points.push_back(time); 
-            density_values.push_back(density); 
-            current_size++;
-        }
-        void saveToCSV() const {
-            std::string filename = base_filename + ".csv";
-            std::ofstream file(filename); 
-
-            if(!file.is_open()){
-                throw std::runtime_error("Cannot open file: " + filename); 
-            }
-            file << "time,density\n";
-            
-            for(int i = 0; i < current_size; ++i){
-                file << time_points[i] << "," << density_values[i] << "\n";
-            }
-        }
-
-        void plotAndSave(const std::string& title = "") const {
-            plt::figure(); 
-            plt::plot(time_points, density_values);
-            plt::title(title.empty() ? base_filename : title); 
-            plt::xlabel("time (ticks)");
-            plt::ylabel("density");
-            plt::grid(true);
-            
-            std::string plot_filename = base_filename + "_plot.png";
-            plt::save(plot_filename);
-            plt::close();
-        }
-
-        void clear(){
-            time_points.clear();
-            density_values.clear();
-            current_size = 0;
-        }
-};
-
-// zadanie 2 
 class Experiment {
     private:
         int size = 100;
         double p0; 
-        
-        DataLogger logger; 
+        Life life;
+        std::vector<double> time_points;
         std::vector<double> density_values;
+        
     public: 
-        Experiment(double probability) : p0(probability), life(size, size), logger("density_p0_"+std::to_string(probability)) {
+        Experiment(double probability)
+            : p0(probability),
+              life(size, size, 0)
+        {
+            srand(time(0));
             for(int y = 0; y < size; y++){
                 for(int x = 0; x < size; x++){
-                    if(rand()/(double)RAND_MAX < p0){
+                    if(rand() / (double)RAND_MAX < p0){
                         life.setCell(x,y,true);
                     }
                 }
             }
         }
-        Life life;     
+         
         void run(int max_ticks = 1000){
-            std::ofstream data("density_p0_" + std::to_string(p0) + ".csv");
             for(int t = 0; t < max_ticks; t++){
                 int alive = life.doTick().size();
                 double density = alive / (double)(size*size);
-
-                logger.record(t, density); 
-
-                data << t << ", "<<density<<"\n";
-                if(t&100 == 0){
-                    std::cout << "p0="<<p0<<" t=" << t 
-                                        << " density="<<density << std::endl;
+                
+                time_points.push_back(t);
+                density_values.push_back(density);
+                
+                if(t % 100 == 0){
+                    std::cout << "p0=" << p0 << " t=" << t 
+                              << " density=" << density << std::endl;
                 }
             }
-
-            logger.saveToCSV();
-            logger.plotAndSave("density evoution for p0=" + std::to_string(p0));
         }
-
-        void analyzeResults(){
-            std::vector<double> final_densities; 
-            for(int t = 900; t < 1000; t++){
-                final_densities.push_back(density_values[t]);
-            }
-            
-            double avg = std::accumulate(final_densities.begin(),
-        final_densities.end(), 0.0) / final_densities.size();
-
-        std::cout << "srednia gestosc dla p0=" << p0 << ": " << avg << "\n";
-        }
+    
+        const std::vector<double>& getTimePoints() const { return time_points; }
+        const std::vector<double>& getDensityValues() const { return density_values; }
+        double getP0() const { return p0; }
     };
 
-
-class ErrorAnalysis{
-    public:
-        static void run(int L, double p0, int N = 100, int Tmax = 1000){
-            std::vector<double> final_densities; 
-
-            for(int n = 0; n < N; n++){
-                Experiment exp(p0);
-                exp.life = Life(L,L); 
-
-                for(int t = 0; t < Tmax; t++){
-                    auto cells = exp.life.doTick();
-                    if(t==Tmax-1){
-                        double density = cells.size() / (double)(L*L);
-                        final_densities.push_back(density);
+    class ErrorAnalysis {
+        public:
+        static void runGridSizeExperiment(double p0 = 0.3, int N = 100, int Tmax = 1000) {
+            std::vector<int> grid_sizes = {10, 100, 200, 500, 1000};
+            std::vector<double> sem_values;
+            std::vector<double> mean_densities;
+        
+            for (int L : grid_sizes) {
+                std::vector<double> final_densities;
+        
+                for (int n = 0; n < N; n++) {
+                    Life life(L, L, 0);
+                    initializeRandomGrid(life, L, p0);
+        
+                    for (int t = 0; t < Tmax; t++) {
+                        life.doTick();
+                    }
+        
+                    double density = life.getLiveCells().size() / static_cast<double>(L * L);
+                    final_densities.push_back(density);
+                }
+        
+                double mean = calculateMean(final_densities);
+                double sem = calculateStdDev(final_densities) / std::sqrt(N);
+        
+                mean_densities.push_back(mean);
+                sem_values.push_back(sem);
+        
+                std::cout << "L=" << L << " | Średnia gęstość: " << mean 
+                          << " | SEM: " << sem << "\n";
+            }
+        
+            // Rysowanie wykresu - POPRAWIONE
+            plt::figure();
+            
+            // Konwersja vector<int> na vector<double> dla osi X
+            std::vector<double> grid_sizes_double(grid_sizes.begin(), grid_sizes.end());
+            
+            // Najpierw punkty
+            plt::plot(grid_sizes_double, mean_densities, "o-");
+            
+            // Następnie słupki błędów
+            plt::errorbar(grid_sizes_double, mean_densities, sem_values);
+            
+            // Opcjonalne ustawienia logarytmiczne
+            //plt::xscale("log");
+            //plt::yscale("log");
+            
+            plt::xlabel("Rozmiar siatki (L)");
+            plt::ylabel("Średnia gęstość");
+            plt::title("Zależność gęstości od rozmiaru siatki (p0=" + std::to_string(p0) + ")");
+            plt::grid(true);
+            
+            // Zapis wykresu
+            plt::save("grid_size_error_plot.png");
+            plt::close();
+        }
+        
+        private:
+            static void initializeRandomGrid(Life& life, int L, double p0) {
+                for (int y = 0; y < L; y++) {
+                    for (int x = 0; x < L; x++) {
+                        if (rand() / static_cast<double>(RAND_MAX) < p0) {
+                            life.setCell(x, y, true);
+                        }
                     }
                 }
             }
-            double mean = calculateMean(final_densities); 
-            double std__err = calculateStdErr(final_densities); 
-
-            std::cout << "L=" << L << " | średnia: " << mean << " | Błąd: " << std__err << "\n";
-        }
-
-        private: 
+        
             static double calculateMean(const std::vector<double>& data) {
-                return std::accumulate(data.begin(), data.end(), 0.0) / data.size(); 
+                return std::accumulate(data.begin(), data.end(), 0.0) / data.size();
             }
-
-            static double calculateStdErr(const std::vector<double>& data){
-                double mean = calculateMean(data); 
-                double sq_sum = std::inner_product(data.begin(), data.end(), data.begin(), 0.0); 
-                return std::sqrt(sq_sum / data.size() - mean * mean); 
+        
+            static double calculateStdDev(const std::vector<double>& data) {
+                double mean = calculateMean(data);
+                double variance = 0.0;
+                for (double x : data) {
+                    variance += (x - mean) * (x - mean);
+                }
+                return std::sqrt(variance / data.size());
             }
-};
+        };
 
-
-int main(int argc, char* argv[]){
-    std::vector<double> probabilities = {0.05, 0.1, 0.3, 0.6, 0.75, 0.8, 0.95};
-
-    for(double p0 : probabilities){
-        Experiment exp(p0);
-        exp.run(1000);
-        exp.analyzeResults(); 
-    }
-
-    std::vector<int> sizes = {10,100,200,500,1000};
-    for(int L : sizes){
-        ErrorAnalysis::run(L, 0.3); 
-    }
-
-    App app(100,100); 
-    app.start(); 
-
-    return 0; 
-}
+        int main(int argc, char* argv[]){
+            std::vector<double> probabilities = {0.05, 0.1, 0.3, 0.6, 0.75, 0.8, 0.95};
+            std::vector<Experiment> experiments;
+            
+            // Przeprowadź wszystkie eksperymenty
+            for(double p0 : probabilities){
+                Experiment exp(p0);
+                exp.run(1000);
+                experiments.push_back(exp);
+            }
+        
+            // Stwórz jeden wspólny wykres
+            plt::figure();
+            plt::title("Ewolucja gęstości dla różnych p0");
+            plt::xlabel("Czas (ticki)");
+            plt::ylabel("Gęstość");
+            plt::grid(true);
+            
+            // Dodaj dane z każdego eksperymentu
+            for(const auto& exp : experiments){
+                plt::plot(exp.getTimePoints(), 
+                         exp.getDensityValues(),
+                         {{"label", "p0=" + std::to_string(exp.getP0())}});
+            }
+            
+            // Dodaj legendę i zapisz wykres
+            plt::legend();
+            plt::save("all_densities_plot.png");
+            plt::close();
+        
+            // Analiza błędów (pozostała część kodu)
+            ErrorAnalysis::runGridSizeExperiment(0.3, 100, 1000);
+        
+            // Uruchomienie wizualizacji (opcjonalne)
+            App app(100,100); 
+            app.start(); 
+        
+            return 0; 
+        }

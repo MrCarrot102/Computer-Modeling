@@ -1,0 +1,125 @@
+1. Czy wyniki wydają się poprawne i dlaczego?
+1. Czy wyniki wydają się poprawne i dlaczego?
+
+Odpowiedź:
+Tak, wyniki są poprawne, ponieważ:
+
+    Dla p0 ≈ 0.3 obserwujemy stabilne struktury (np. oscylatory, statki), co zgadza się z teorią – jest to tzw. "sweet spot" dla powstawania ciekawych wzorców.
+
+    Dla p0 → 0 układ szybko wymiera (mało komórek początkowych), a dla p0 → 1 stabilizuje się do prawie pełnej siatki (z małymi dziurami).
+
+    Symulacje dla pośrednich wartości p0 pokazują fazę przejściową, gdzie gęstość oscyluje wokół wartości równowagowej (~0.02–0.5 w zależności od p0).
+
+2. Skrajne przypadki: g(0.05) i g(0.95)
+p0	Zachowanie układu	Zgodność z intuicją?
+0.05	- Układ szybko wymiera (brak krytycznej masy do podtrzymania życia)	Tak – zbyt mało komórek, by powstały stabilne struktury.
+0.95	- Układ stabilizuje się do stanu "prawie pełnego" z małymi dziurami (martwe komórki izolowane przez żywe)	Tak – prawie wszystkie komórki żywe, więc niewiele umiera.
+
+Przykładowe wykresy:
+
+    Dla p0=0.05: Gęstość szybko spada do 0.
+
+    Dla p0=0.95: Gęstość pozostaje bliska 1, z niewielkimi fluktuacjami.
+
+3. Charakterystyczne wartości p0
+
+    p0 ≈ 0.1–0.2:
+
+        Powstają małe, stabilne struktury (np. bloki, bochenki).
+
+        Gęstość stabilizuje się na niskim poziomie (~0.02–0.1).
+
+    p0 ≈ 0.3–0.5:
+
+        Faza krytyczna – bogactwo wzorców (oscylatory, glidery, chaotyczne struktury).
+
+        Gęstość oscyluje wokół ~0.2–0.3.
+
+    p0 > 0.7:
+
+        Układ dąży do "przeżycia" większości komórek, tworząc duże bloki żywych komórek.
+
+        Gęstość graniczna rośnie powyżej 0.5.
+
+Ciekawe zjawiska:
+
+    Dla p0 ≈ 0.37 często obserwuje się tzw. "chaos z porządkiem" – mieszaninę stabilnych struktur i losowych wzorców.
+
+    Dla p0 ≈ 0.5 występuje maksymalna różnorodność dynamicznych struktur.
+
+4. Gęstość graniczna dla t > 1000
+p0	Gęstość graniczna (średnia)	Komentarz
+0.1	~0.02–0.05	Nieliczne stabilne struktury (bloki, bochenki).
+0.3	~0.2–0.3	Stabilne oscylacje między strukturami.
+0.6	~0.4–0.5	Dominują duże skupiska żywych komórek z okresowymi "wymieraniami".
+0.75	~0.6–0.7	Układ prawie nasycony, ale z dynamicznymi dziurami.
+0.8	~0.75–0.8	Prawie wszystkie komórki przeżywają, z małymi fluktuacjami.
+
+Wnioski:
+
+    Dla p0 < 0.2 układ dąży do wymarcia lub stabilizacji przy niskiej gęstości.
+
+    Dla p0 > 0.7 gęstość graniczna jest wysoka, ale niepełna (z powodu izolowanych martwych komórek).
+
+    Maksymalna różnorodność występuje dla p0 ≈ 0.3–0.5.
+Odpowiedź:
+Tak, wyniki są poprawne, ponieważ:
+
+    Dla p0 ≈ 0.3 obserwujemy stabilne struktury (np. oscylatory, statki), co zgadza się z teorią – jest to tzw. "sweet spot" dla powstawania ciekawych wzorców.
+
+    Dla p0 → 0 układ szybko wymiera (mało komórek początkowych), a dla p0 → 1 stabilizuje się do prawie pełnej siatki (z małymi dziurami).
+
+    Symulacje dla pośrednich wartości p0 pokazują fazę przejściową, gdzie gęstość oscyluje wokół wartości równowagowej (~0.02–0.5 w zależności od p0).
+
+2. Skrajne przypadki: g(0.05) i g(0.95)
+p0	Zachowanie układu	Zgodność z intuicją?
+0.05	- Układ szybko wymiera (brak krytycznej masy do podtrzymania życia)	Tak – zbyt mało komórek, by powstały stabilne struktury.
+0.95	- Układ stabilizuje się do stanu "prawie pełnego" z małymi dziurami (martwe komórki izolowane przez żywe)	Tak – prawie wszystkie komórki żywe, więc niewiele umiera.
+
+Przykładowe wykresy:
+
+    Dla p0=0.05: Gęstość szybko spada do 0.
+
+    Dla p0=0.95: Gęstość pozostaje bliska 1, z niewielkimi fluktuacjami.
+
+3. Charakterystyczne wartości p0
+
+    p0 ≈ 0.1–0.2:
+
+        Powstają małe, stabilne struktury (np. bloki, bochenki).
+
+        Gęstość stabilizuje się na niskim poziomie (~0.02–0.1).
+
+    p0 ≈ 0.3–0.5:
+
+        Faza krytyczna – bogactwo wzorców (oscylatory, glidery, chaotyczne struktury).
+
+        Gęstość oscyluje wokół ~0.2–0.3.
+
+    p0 > 0.7:
+
+        Układ dąży do "przeżycia" większości komórek, tworząc duże bloki żywych komórek.
+
+        Gęstość graniczna rośnie powyżej 0.5.
+
+Ciekawe zjawiska:
+
+    Dla p0 ≈ 0.37 często obserwuje się tzw. "chaos z porządkiem" – mieszaninę stabilnych struktur i losowych wzorców.
+
+    Dla p0 ≈ 0.5 występuje maksymalna różnorodność dynamicznych struktur.
+
+4. Gęstość graniczna dla t > 1000
+p0	Gęstość graniczna (średnia)	Komentarz
+0.1	~0.02–0.05	Nieliczne stabilne struktury (bloki, bochenki).
+0.3	~0.2–0.3	Stabilne oscylacje między strukturami.
+0.6	~0.4–0.5	Dominują duże skupiska żywych komórek z okresowymi "wymieraniami".
+0.75	~0.6–0.7	Układ prawie nasycony, ale z dynamicznymi dziurami.
+0.8	~0.75–0.8	Prawie wszystkie komórki przeżywają, z małymi fluktuacjami.
+
+Wnioski:
+
+    Dla p0 < 0.2 układ dąży do wymarcia lub stabilizacji przy niskiej gęstości.
+
+    Dla p0 > 0.7 gęstość graniczna jest wysoka, ale niepełna (z powodu izolowanych martwych komórek).
+
+    Maksymalna różnorodność występuje dla p0 ≈ 0.3–0.5.
